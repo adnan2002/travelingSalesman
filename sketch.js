@@ -107,6 +107,8 @@ class Vertex {
     return d < this.diameter / 2;
   }
 
+  
+
   // Function to handle mouse press events
   onMousePressed() {
     if (this.isMouseOver()) {
@@ -127,34 +129,106 @@ function mousePressed() {
   }
 }
 
-// Function to solve the traveling salesman problem
+// Function to solve the traveling salesman problem using a basic genetic algorithm
 function travelingSalesman(graph, start) {
-  let visited = [start];
-  let next = start;
-  let totalWeight = 0;
+  const populationSize = 50; // Number of chromosomes in the population
+  const mutationRate = 0.01; // Probability of a mutation in each gene
+  const generations = 100; // Number of generations
 
-  // Visit each city in the graph
-  while (visited.length < Object.keys(graph).length) {
-    let neighbors = graph[next];
-    let bestNext = null;
-    let bestWeight = Infinity;
+  let population = [];
 
-    // Find the closest city that hasn't been visited yet
-    for (let city in neighbors) {
-      let weight = neighbors[city];
-      if (weight < bestWeight && !visited.includes(city)) {
-        bestWeight = weight;
-        bestNext = city;
+  // Initialize population with random chromosomes
+  for (let i = 0; i < populationSize; i++) {
+    population.push(generateRandomChromosome(Object.keys(graph), start));
+  }
+
+  // Iterate through generations
+  for (let gen = 0; gen < generations; gen++) {
+    population = evolvePopulation(population, graph);
+  }
+
+  // Return the fittest chromosome
+  return evaluateFitness(population[0], graph);
+
+  // Helper functions
+
+  // Function to generate a random chromosome
+  function generateRandomChromosome(cities, start) {
+    let chromosome = shuffle(cities.filter(city => city !== start)); // Create a shuffled copy of the cities excluding the start city
+    chromosome.unshift(start); // Add the start city at the beginning
+    chromosome.push(start); // Make it a closed loop
+    return chromosome;
+  }
+
+  // Function to evolve the population using selection, crossover, and mutation
+  function evolvePopulation(population, graph) {
+    let newPopulation = [];
+    for (let i = 0; i < population.length; i++) {
+      let parent1 = selectParent(population, graph);
+      let parent2 = selectParent(population, graph);
+      let child = crossover(parent1, parent2);
+      mutate(child, mutationRate);
+      newPopulation.push(child);
+    }
+    return newPopulation.sort((a, b) => evaluateFitness(a, graph).fitness - evaluateFitness(b, graph).fitness); // Sort the population by fitness
+  }
+
+  // Function to select a parent based on fitness
+  function selectParent(population, graph) {
+    let totalFitness = population.reduce((sum, chromosome) => sum + evaluateFitness(chromosome, graph).fitness, 0);
+    let randomValue = random(0, totalFitness);
+    let accumulatedFitness = 0;
+
+    for (let chromosome of population) {
+      accumulatedFitness += evaluateFitness(chromosome, graph).fitness;
+      if (accumulatedFitness > randomValue) {
+        return chromosome;
+      }
+    }
+  }
+
+  // Function to perform crossover between two parents
+  function crossover(parent1, parent2) {
+    const crossoverPoint = Math.floor(parent1.length / 2);
+    let child = parent1.slice(0, crossoverPoint);
+
+    for (let gene of parent2) {
+      if (!child.includes(gene)) {
+        child.push(gene);
       }
     }
 
-    next = bestNext;
-    visited.push(next);
-    totalWeight += bestWeight;
+    child.push(child[0]); // Make it a closed loop
+    return child;
   }
 
-  totalWeight += graph[next][start]; // Return to the start city
-  visited.push(start); // Return to the start city
+  // Function to perform mutation on a chromosome
+  function mutate(chromosome, mutationRate) {
+    for (let i = 1; i < chromosome.length - 1; i++) {
+      if (random() < mutationRate) {
+        let swapIndex = i + floor(random(chromosome.length - i - 1));
+        [chromosome[i], chromosome[swapIndex]] = [chromosome[swapIndex], chromosome[i]];
+      }
+    }
+  }
 
-  return {path: visited, weight: totalWeight}; // Return the path and the total weight
+  // Function to evaluate fitness of a chromosome
+  function evaluateFitness(chromosome, graph) {
+    let totalDistance = 0;
+    for (let i = 0; i < chromosome.length - 1; i++) {
+      totalDistance += graph[chromosome[i]][chromosome[i + 1]];
+    }
+    return { path: chromosome, weight: totalDistance, fitness: 1 / totalDistance }; // Use 1/distance to favor shorter paths
+  }
+
+  // Function to shuffle an array
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
 }
+
+
