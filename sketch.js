@@ -113,7 +113,7 @@ class Vertex {
   onMousePressed() {
     if (this.isMouseOver()) {
       tspResult = travelingSalesman(graph, this.letter); // Solve the traveling salesman problem
-      document.getElementById("result").innerHTML = "The shortest path is " + tspResult.path.join("-") + " with total weight " + tspResult.weight;
+      document.getElementById("result").innerHTML = "The resulting path using the Genetic Algorithm is " + tspResult.path.join("-") + " with total weight " + tspResult.weight;
       return true;
     }
     return false;
