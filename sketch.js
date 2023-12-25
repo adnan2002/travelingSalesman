@@ -5,6 +5,7 @@ let canvasSize = 800;
 let padding = 50; // Padding to keep vertices inside the canvas
 let graph = {}; // Initialize an empty object for the graph
 let tspResult = null; // Initialize a null variable for the result of the traveling salesman problem
+let brute = null;
 
 // The setup function is called once when the program starts
 function setup() {
@@ -114,6 +115,8 @@ class Vertex {
     if (this.isMouseOver()) {
       tspResult = travelingSalesman(graph, this.letter); // Solve the traveling salesman problem
       document.getElementById("result").innerHTML = "The resulting path using the Genetic Algorithm is " + tspResult.path.join("-") + " with total weight " + tspResult.weight;
+      // brute = bruteForce(graph, this.letter);
+      // document.getElementById('result').innerHTML += "<br>Brute force is "+brute.path.join('-') +" with total weight is "+brute.weight;
       return true;
     }
     return false;
@@ -170,12 +173,12 @@ function travelingSalesman(graph, start) {
       mutate(child, mutationRate);
       newPopulation.push(child);
     }
-    return newPopulation.sort((a, b) => evaluateFitness(a, graph).fitness - evaluateFitness(b, graph).fitness); // Sort the population by fitness
-  }
+    return newPopulation.sort((a, b) => evaluateFitness(b, graph).fitness - evaluateFitness(a, graph).fitness); // Sort the population by fitness in descending order
+    }
 
   // Function to select a parent based on fitness
   function selectParent(population, graph) {
-    let totalFitness = population.reduce((sum, chromosome) => sum + evaluateFitness(chromosome, graph).fitness, 0);
+    let totalFitness = population.reduce((sum, chromosome) => sum + evaluateFitness(chromosome, graph).fitness, 0); // returns the sum of all the fitness values
     let randomValue = random(0, totalFitness);
     let accumulatedFitness = 0;
 
@@ -203,10 +206,11 @@ function travelingSalesman(graph, start) {
   }
 
   // Function to perform mutation on a chromosome
+  // used to solve local minima
   function mutate(chromosome, mutationRate) {
     for (let i = 1; i < chromosome.length - 1; i++) {
       if (random() < mutationRate) {
-        let swapIndex = i + floor(random(chromosome.length - i - 1));
+        let swapIndex = i + floor(random(chromosome.length - i - 1));   // switches any random 2 values other than the first and last
         [chromosome[i], chromosome[swapIndex]] = [chromosome[swapIndex], chromosome[i]];
       }
     }
@@ -230,5 +234,36 @@ function travelingSalesman(graph, start) {
     return array;
   }
 }
+
+// function bruteForce(graph, start){
+//   let visited = [start];
+//   let next = start;
+//   let totalWeight = 0;
+
+//   // Visit each city in the graph
+//   while (visited.length < Object.keys(graph).length) {
+//     let neighbors = graph[next];
+//     let bestNext = null;
+//     let bestWeight = Infinity;
+
+//     // Find the closest city that hasn't been visited yet
+//     for (let city in neighbors) {
+//       let weight = neighbors[city];
+//       if (weight < bestWeight && !visited.includes(city)) {
+//         bestWeight = weight;
+//         bestNext = city;
+//       }
+//     }
+
+//     next = bestNext;
+//     visited.push(next);
+//     totalWeight += bestWeight;
+//   }
+
+//   totalWeight += graph[next][start]; // Return to the start city
+//   visited.push(start); // Return to the start city
+
+//   return {path: visited, weight: totalWeight}; // Return the path and the total weight
+// }
 
 
