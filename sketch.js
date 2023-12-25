@@ -184,7 +184,7 @@ function travelingSalesman(graph, start) {
 
     for (let chromosome of population) {
       accumulatedFitness += evaluateFitness(chromosome, graph).fitness;
-      if (accumulatedFitness > randomValue) {
+      if (accumulatedFitness > randomValue) {  /* selects the parent when accumalted fitness becomes larger than random fitness value */
         return chromosome;
       }
     }
@@ -193,11 +193,11 @@ function travelingSalesman(graph, start) {
   // Function to perform crossover between two parents
   function crossover(parent1, parent2) {
     const crossoverPoint = Math.floor(parent1.length / 2);
-    let child = parent1.slice(0, crossoverPoint);
+    let child = parent1.slice(0, crossoverPoint);  //child copies the first half of the parent1 
 
     for (let gene of parent2) {
       if (!child.includes(gene)) {
-        child.push(gene);
+        child.push(gene);  // genes of parent 2 not included in the child is then inserted
       }
     }
 
@@ -211,7 +211,7 @@ function travelingSalesman(graph, start) {
     for (let i = 1; i < chromosome.length - 1; i++) {
       if (random() < mutationRate) {
         let swapIndex = i + floor(random(chromosome.length - i - 1));   // switches any random 2 values other than the first and last
-        [chromosome[i], chromosome[swapIndex]] = [chromosome[swapIndex], chromosome[i]];
+        [chromosome[i], chromosome[swapIndex]] = [chromosome[swapIndex], chromosome[i]];  //swaps the genes
       }
     }
   }
@@ -220,7 +220,7 @@ function travelingSalesman(graph, start) {
   function evaluateFitness(chromosome, graph) {
     let totalDistance = 0;
     for (let i = 0; i < chromosome.length - 1; i++) {
-      totalDistance += graph[chromosome[i]][chromosome[i + 1]];
+      totalDistance += graph[chromosome[i]][chromosome[i + 1]];  // calculates the distance of the chromose
     }
     return { path: chromosome, weight: totalDistance, fitness: 1 / totalDistance }; // Use 1/distance to favor shorter paths
   }
