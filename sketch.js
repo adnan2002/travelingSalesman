@@ -206,7 +206,7 @@ function travelingSalesman(graph, start) {
   }
 
   // Function to perform mutation on a chromosome
-  // used to solve local minima
+  // used to solve local minima, used for diversity
   function mutate(chromosome, mutationRate) {
     for (let i = 1; i < chromosome.length - 1; i++) {
       if (random() < mutationRate) {
