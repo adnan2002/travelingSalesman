@@ -179,12 +179,12 @@ function travelingSalesman(graph, start) {
   // Function to select a parent based on fitness
   function selectParent(population, graph) {
     let totalFitness = population.reduce((sum, chromosome) => sum + evaluateFitness(chromosome, graph).fitness, 0); // returns the sum of all the fitness values
-    let randomValue = random(0, totalFitness);
+    let randomValue = random(0, totalFitness); // selects renadom value from 0 to totalFitness
     let accumulatedFitness = 0;
 
     for (let chromosome of population) {
       accumulatedFitness += evaluateFitness(chromosome, graph).fitness;
-      if (accumulatedFitness > randomValue) {  /* selects the parent when accumalted fitness becomes larger than random fitness value */
+      if (accumulatedFitness > randomValue) {  /* selects the parent when accumalated fitness becomes larger than random fitness value */
         return chromosome;
       }
     }
@@ -210,7 +210,7 @@ function travelingSalesman(graph, start) {
   function mutate(chromosome, mutationRate) {
     for (let i = 1; i < chromosome.length - 1; i++) {
       if (random() < mutationRate) {
-        let swapIndex = i + floor(random(chromosome.length - i - 1));   // switches any random 2 values other than the first and last
+        let swapIndex = i + floor(random(chromosome.length - i - 1));   // random index between the index 1 to chromosome.length - 2, so the first and second gene is the same
         [chromosome[i], chromosome[swapIndex]] = [chromosome[swapIndex], chromosome[i]];  //swaps the genes
       }
     }
